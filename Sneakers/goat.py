@@ -97,7 +97,7 @@ def get_sneaker_data(goat_urls, sneaker):
 			response = session.get(url)
 			response_html = BeautifulSoup(response.text, "html.parser")
 			if response_html:
-				#pdb.set_trace()
+				# pdb.set_trace()
 				break
 			else:
 				time.sleep(5)
@@ -110,6 +110,12 @@ def get_sneaker_data(goat_urls, sneaker):
 			data['goat_url'] = url
 			results.append(data)
 		except Exception as ex:
+			if 'story' in json.loads("".join(response_html.find("script", {'id': '__NEXT_DATA__',
+																		   'type': 'application/json'}).contents))['props']['pageProps']['productTemplate']:
+				story = json.loads("".join(response_html.find("script", {'id': '__NEXT_DATA__',
+																		   'type': 'application/json'}).contents))['props']['pageProps']['productTemplate']['story']
+			else:
+				story = 'N/A'
 			data = {
 				'@context': 'http://schema.org',
 				'@type': 'N/A',
@@ -121,7 +127,8 @@ def get_sneaker_data(goat_urls, sneaker):
 				'sku': 'N/A',
 				'color': 'N/A',
 				'description': response_html.find("meta", {"name": "description"})['content'],
-				'goat_url': url
+				'goat_url': url,
+				'story': story
 			}
 			results.append(data)
 
@@ -136,10 +143,10 @@ def get_sneaker_data(goat_urls, sneaker):
 if __name__ == "__main__":
 	sneaker = 'kobe'
 	# for sneaker in sneakers:
-	df = get_silhouette_data(sneaker)
+	# df = get_silhouette_data(sneaker)
 	# Phase 3: Load
 	file_name = f"{sneaker.replace(' ', '-')}-silhouette-data.csv"
-	df.to_csv(file_name, index=False)
+	# df.to_csv(file_name, index=False)
 
 	# TODO async
 	df = pd.read_csv(file_name)
